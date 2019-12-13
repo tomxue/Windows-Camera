@@ -303,13 +303,11 @@ void TakePhotosAndProcess(MediaCapture mediaCapture, uint32_t photoIndex)
 	auto folderRoot = file.GetParentAsync().get();
 	auto folder = folderRoot.CreateFolderAsync(L"test\\", CreationCollisionOption::OpenIfExists).get();
 	auto file1 = folder.CreateFileAsync(to_hstring(photoIndex) + L"_1.png", CreationCollisionOption::GenerateUniqueName).get();
-	//auto file2 = folder.CreateFileAsync(to_hstring(photoIndex) + L"_2.png", CreationCollisionOption::GenerateUniqueName).get();
 	std::wcout << L"\nCapturing one photo:\n" << file1.Path().c_str() << L"\n";// << file2.Path().c_str();
 	try
 	{
 		// Capture and save two photos
 		mediaCapture.CapturePhotoToStorageFileAsync(ImageEncodingProperties::CreatePng(), file1).get();
-		//mediaCapture.CapturePhotoToStorageFileAsync(ImageEncodingProperties::CreatePng(), file2).get();
 
 		auto sbList = single_threaded_vector<SoftwareBitmap>();
 		// Open photos and decode them into NV12 format for processing
@@ -320,27 +318,6 @@ void TakePhotosAndProcess(MediaCapture mediaCapture, uint32_t photoIndex)
 			auto sb1 = decoder.GetSoftwareBitmapAsync().get();
 			sbList.Append(SoftwareBitmap::Convert(sb1, BitmapPixelFormat::Nv12));
 		}
-		// Photo2
-	/*	{
-			auto strm = file2.OpenReadAsync().get();
-			auto decoder = BitmapDecoder::CreateAsync(strm).get();
-			auto sb1 = decoder.GetSoftwareBitmapAsync().get();
-			sbList.Append(SoftwareBitmap::Convert(sb1, BitmapPixelFormat::Nv12));
-		}*/
-
-		// Do some processing like low light fusion in this example
-		//auto op = LowLightFusion::FuseAsync(sbList).get();
-
-		//// Save the output
-		//auto fname = to_hstring(photoIndex) + L"_LLF.png";
-		//auto fileOp = folder.CreateFileAsync(fname, CreationCollisionOption::GenerateUniqueName).get();
-		//{
-		//	auto strm = fileOp.OpenAsync(FileAccessMode::ReadWrite).get();
-		//	auto encoder = BitmapEncoder::CreateAsync(BitmapEncoder::PngEncoderId(), strm).get();
-		//	encoder.SetSoftwareBitmap(SoftwareBitmap::Convert(op.Frame(), BitmapPixelFormat::Bgra8));
-		//	encoder.FlushAsync().get();
-		//	std::wcout << L"\nSaved LowLightFusion output to:\n " << fileOp.Path().c_str();
-		//}
 	}
 	catch (hresult_error const& ex)
 	{
@@ -358,25 +335,6 @@ int wmain()
 	{
 		CameraHelper cameraHelper;
 		auto mediaCapture = cameraHelper.InitCamera();
-
-		// Main processing part of photos
-	/*	char key = 0;
-		uint32_t photoCounter = 0;
-		while (key != 'q')
-		{
-			std::cout << std::endl << "-----------Press 'p' to take photos and 'q' to quit-----------";
-			key = _getch();
-			switch (key)
-			{
-			case 'p':
-				std::cout << "\nTaking photos and processing: " << ++photoCounter;
-				TakePhotosAndProcess(mediaCapture, photoCounter);
-				break;
-
-			default:
-				continue;
-			}
-		}*/
 
 		std::cout << "\nTaking photos and processing";
 		//TakePhotosAndProcess(mediaCapture, photoCounter);
